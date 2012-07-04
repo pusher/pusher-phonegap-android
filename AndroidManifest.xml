@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pusher.pusherexample"
+    package="com.pusher.phonegap"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -35,7 +35,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".PusherExample"
+            android:name=".PusherPhoneGap"
             android:label="@string/title_activity_main"
             android:configChanges="orientation|keyboardHidden|screenSize" >
             <intent-filter>

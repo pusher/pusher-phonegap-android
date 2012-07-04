@@ -35,14 +35,6 @@
   		$('#subscriptionStatus').html('succeeded');
   	}
   	
-  	var clicks = 0;
-  	$('#subscribeBtn').click( subscribeBtnClicked );
-  	function subscribeBtnClicked() {
-  		var channelName = 'channel-' + clicks;
-  		++clicks;
-  		pusher.subscribe(channelName);
-  	}
-  	
   }
   
 } )( jQuery );
