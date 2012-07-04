@@ -1,13 +1,16 @@
 # Pusher PhoneGap
 
-This is a sample project that demonstrates how to use the [Pusher JavaScript library]() within PhoneGap.
+This is a sample project that demonstrates how to use the [Pusher JavaScript library](https://github.com/pusher/pusher-js) within PhoneGap.
+
+## Prerequisites
+
+See [step 2 of the Getting Started with Android guide](http://docs.phonegap.com/en/1.9.0/guide_getting-started_android_index.md.html#Getting%20Started%20with%20Android) from the PhoneGap site.
 
 ## Getting started
 
 1. `git clone git@github.com:pusher/pusher-phonegap-android.git` (this repo).
 2. `cd pusher-phonegap-android`
-3. If you don't already have a PhoneGap development environment follow [step2 of the Getting Started with 
-Android guide](http://docs.phonegap.com/en/1.9.0/guide_getting-started_android_index.md.html#Getting%20Started%20with%20Android) from the PhoneGap site. **Don't move on to step 3**.
+3. See **Prerequisites** above. **Don't move on to step 3** in the PhoneGap guide.
 4. Open Eclipse
 5. In Eclipse:
    1. Eclipse menu: *File -> Import*
@@ -35,6 +38,13 @@ Previous solutions of using Pusher within PhoneGap have resorted to falling back
 This means that a bridge is created between JavaScript and the Java runtime and a WebSocket proxy is added. It does however mean that a WebSocket connection to Pusher will be created from the PhoneGap wrapper.
 
 ## Project notes
+
+### Links
+
+* [Cordova/PhoneGap API docs](http://docs.phonegap.com/en/1.9.0/index.html)
+* [websocket-android-phonegap](https://github.com/anismiles/websocket-android-phonegap)
+* [Android SDK](http://developer.android.com/sdk/index.html)
+* [Eclipse](http://www.eclipse.org/)
 
 ### Android 2.3 Emulator Crashes
 
