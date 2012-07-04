@@ -1,4 +1,4 @@
-# Pusher PhoneGap on Android
+# Pusher PhoneGap for Android
 
 This is a sample project that demonstrates how to use the [Pusher JavaScript library](https://github.com/pusher/pusher-js) within PhoneGap on Android.
 
