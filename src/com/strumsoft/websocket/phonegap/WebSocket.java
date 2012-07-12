@@ -43,8 +43,9 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.cordova.DroidGap;
+
 import android.util.Log;
-import android.webkit.WebView;
 
 /**
  * The <tt>WebSocket</tt> is an implementation of WebSocket Client API, and
@@ -130,9 +131,9 @@ public class WebSocket implements Runnable {
 
 	// //////////////// INSTANCE Variables
 	/**
-	 * The WebView instance from Phonegap DroidGap
+	 * The Phonegap DroidGap
 	 */
-	private final WebView appView;
+	private final DroidGap droidGap;
 	/**
 	 * The unique id for this instance (helps to bind this to javascript events)
 	 */
@@ -211,10 +212,11 @@ public class WebSocket implements Runnable {
 	/**
 	 * Constructor.
 	 * 
-	 * Note: this is protected because it's supposed to be instantiated from {@link WebSocketFactory} only.
+	 * Note: this is protected because it's supposed to be instantiated from
+	 * {@link WebSocketFactory} only.
 	 * 
-	 * @param appView
-	 *            {@link android.webkit.WebView}
+	 * @param droidGap
+	 *            {@link org.apache.cordova.DroidGap}
 	 * @param uri
 	 *            websocket server {@link URI}
 	 * @param draft
@@ -222,8 +224,8 @@ public class WebSocket implements Runnable {
 	 * @param id
 	 *            unique id for this instance
 	 */
-	protected WebSocket(WebView appView, URI uri, Draft draft, String id) {
-		this.appView = appView;
+	protected WebSocket(DroidGap droidGap, URI uri, Draft draft, String id) {
+		this.droidGap = droidGap;
 		this.uri = uri;
 		this.draft = draft;
 
@@ -271,7 +273,8 @@ public class WebSocket implements Runnable {
 
 		selector = Selector.open();
 		socketChannel.register(selector, SelectionKey.OP_CONNECT);
-		Log.v("websocket", "Starting a new thread to manage data reading/writing");
+		Log.v("websocket",
+				"Starting a new thread to manage data reading/writing");
 
 		Thread th = new Thread(this);
 		th.start();
@@ -340,37 +343,41 @@ public class WebSocket implements Runnable {
 	 *            Message from websocket server
 	 */
 	public void onMessage(final String msg) {
-		appView.post(new Runnable() {
+		droidGap.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				appView.loadUrl(buildJavaScriptData(EVENT_ON_MESSAGE, msg));
+				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_MESSAGE,
+						msg));
 			}
 		});
 	}
 
 	public void onOpen() {
-		appView.post(new Runnable() {
+		droidGap.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				appView.loadUrl(buildJavaScriptData(EVENT_ON_OPEN, BLANK_MESSAGE));
+				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_OPEN,
+						BLANK_MESSAGE));
 			}
 		});
 	}
 
 	public void onClose() {
-		appView.post(new Runnable() {
+		droidGap.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				appView.loadUrl(buildJavaScriptData(EVENT_ON_CLOSE, BLANK_MESSAGE));
+				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_CLOSE,
+						BLANK_MESSAGE));
 			}
 		});
 	}
 
 	public void onError(final Throwable t) {
-		appView.post(new Runnable() {
+		droidGap.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				appView.loadUrl(buildJavaScriptData(EVENT_ON_ERROR, t.getMessage()));
+				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_ERROR,
+						t.getMessage()));
 			}
 		});
 	}
@@ -397,16 +404,12 @@ public class WebSocket implements Runnable {
 	 * @return
 	 */
 	private String buildJavaScriptData(String event, String msg) {
-		
-//		System.out.println(">>> " + event + " >>> " + msg);
-		String _d = "javascript:WebSocket." + event +
-					"(" +
-						"{" +
-							"\"_target\":\"" + id + "\"," +
-							"\"data\":'" + msg.replaceAll("\"", "\\\\\"") + "'" +
-						"}" + 
-					")";
-//		System.out.println(">>> " + _d);
+
+		// System.out.println(">>> " + event + " >>> " + msg);
+		String _d = "WebSocket." + event + "(" + "{"
+				+ "\"_target\":\"" + id + "\"," + "\"data\":'"
+				+ msg.replaceAll("\"", "\\\\\"") + "'" + "}" + ")";
+		// System.out.println(">>> " + _d);
 		return _d;
 	}
 
@@ -420,7 +423,8 @@ public class WebSocket implements Runnable {
 			throw new NotYetConnectedException();
 		}
 		if (text == null) {
-			throw new NullPointerException("Cannot send 'null' data to a WebSocket.");
+			throw new NullPointerException(
+					"Cannot send 'null' data to a WebSocket.");
 		}
 
 		// Get 'text' into a WebSocket "frame" of bytes
@@ -440,14 +444,16 @@ public class WebSocket implements Runnable {
 		// If we didn't get it all sent, add it to the buffer of buffers
 		if (b.remaining() > 0) {
 			if (!this.bufferQueue.offer(b)) {
-				throw new IOException("Buffers are full, message could not be sent to"
-						+ this.socketChannel.socket().getRemoteSocketAddress());
+				throw new IOException(
+						"Buffers are full, message could not be sent to"
+								+ this.socketChannel.socket()
+										.getRemoteSocketAddress());
 			}
 			return false;
 		}
-		
+
 		System.out.println("Sent: >>>" + text);
-		
+
 		return true;
 	}
 
@@ -489,7 +495,8 @@ public class WebSocket implements Runnable {
 
 		String host = uri.getHost() + (port != DEFAULT_PORT ? ":" + port : "");
 		String origin = "*"; // TODO: Make 'origin' configurable
-		String request = "GET " + path + " HTTP/1.1\r\n" + "Upgrade: WebSocket\r\n" + "Connection: Upgrade\r\n"
+		String request = "GET " + path + " HTTP/1.1\r\n"
+				+ "Upgrade: WebSocket\r\n" + "Connection: Upgrade\r\n"
 				+ "Host: " + host + "\r\n" + "Origin: " + origin + "\r\n";
 
 		// Add random keys for Draft76
@@ -509,7 +516,8 @@ public class WebSocket implements Runnable {
 			System.arraycopy(bRequest, 0, bToSend, 0, bRequest.length);
 
 			// Now tack on key3 bytes
-			System.arraycopy(this.key3, 0, bToSend, bRequest.length, this.key3.length);
+			System.arraycopy(this.key3, 0, bToSend, bRequest.length,
+					this.key3.length);
 
 			// Now we can send all keys as a single frame
 			_write(bToSend);
@@ -574,14 +582,16 @@ public class WebSocket implements Runnable {
 			// currentFrame will be null if END_OF_FRAME was send directly after
 			// START_OF_FRAME, thus we will send 'null' as the sent message.
 			if (this.currentFrame != null) {
-				textFrame = new String(this.currentFrame.array(), UTF8_CHARSET.toString());
+				textFrame = new String(this.currentFrame.array(),
+						UTF8_CHARSET.toString());
 			}
 			// fire onMessage method
 			this.onMessage(textFrame);
 
 		} else { // Regular frame data, add to current frame buffer
-			ByteBuffer frame = ByteBuffer.allocate((this.currentFrame != null ? this.currentFrame.capacity() : 0)
-					+ this.buffer.capacity());
+			ByteBuffer frame = ByteBuffer
+					.allocate((this.currentFrame != null ? this.currentFrame
+							.capacity() : 0) + this.buffer.capacity());
 			if (this.currentFrame != null) {
 				this.currentFrame.rewind();
 				frame.put(this.currentFrame);
@@ -592,8 +602,9 @@ public class WebSocket implements Runnable {
 	}
 
 	private void _readHandshake() throws IOException, NoSuchAlgorithmException {
-		ByteBuffer ch = ByteBuffer.allocate((this.remoteHandshake != null ? this.remoteHandshake.capacity() : 0)
-				+ this.buffer.capacity());
+		ByteBuffer ch = ByteBuffer
+				.allocate((this.remoteHandshake != null ? this.remoteHandshake
+						.capacity() : 0) + this.buffer.capacity());
 		if (this.remoteHandshake != null) {
 			this.remoteHandshake.rewind();
 			ch.put(this.remoteHandshake);
@@ -604,34 +615,40 @@ public class WebSocket implements Runnable {
 		// If the ByteBuffer contains 16 random bytes, and ends with
 		// 0x0D 0x0A 0x0D 0x0A (or two CRLFs), then the client
 		// handshake is complete for Draft 76 Client.
-		if ((h.length >= 20 && h[h.length - 20] == DATA_CR && h[h.length - 19] == DATA_LF
-				&& h[h.length - 18] == DATA_CR && h[h.length - 17] == DATA_LF)) {
-			_readHandshake(new byte[] { h[h.length - 16], h[h.length - 15], h[h.length - 14], h[h.length - 13],
-					h[h.length - 12], h[h.length - 11], h[h.length - 10], h[h.length - 9], h[h.length - 8],
-					h[h.length - 7], h[h.length - 6], h[h.length - 5], h[h.length - 4], h[h.length - 3],
+		if ((h.length >= 20 && h[h.length - 20] == DATA_CR
+				&& h[h.length - 19] == DATA_LF && h[h.length - 18] == DATA_CR && h[h.length - 17] == DATA_LF)) {
+			_readHandshake(new byte[] { h[h.length - 16], h[h.length - 15],
+					h[h.length - 14], h[h.length - 13], h[h.length - 12],
+					h[h.length - 11], h[h.length - 10], h[h.length - 9],
+					h[h.length - 8], h[h.length - 7], h[h.length - 6],
+					h[h.length - 5], h[h.length - 4], h[h.length - 3],
 					h[h.length - 2], h[h.length - 1] });
 
 			// If the ByteBuffer contains 8 random bytes,ends with
 			// 0x0D 0x0A 0x0D 0x0A (or two CRLFs), and the response
 			// contains Sec-WebSocket-Key1 then the client
 			// handshake is complete for Draft 76 Server.
-		} else if ((h.length >= 12 && h[h.length - 12] == DATA_CR && h[h.length - 11] == DATA_LF
-				&& h[h.length - 10] == DATA_CR && h[h.length - 9] == DATA_LF)
-				&& new String(this.remoteHandshake.array(), UTF8_CHARSET).contains("Sec-WebSocket-Key1")) {// ************************
-			_readHandshake(new byte[] { h[h.length - 8], h[h.length - 7], h[h.length - 6], h[h.length - 5],
-					h[h.length - 4], h[h.length - 3], h[h.length - 2], h[h.length - 1] });
+		} else if ((h.length >= 12 && h[h.length - 12] == DATA_CR
+				&& h[h.length - 11] == DATA_LF && h[h.length - 10] == DATA_CR && h[h.length - 9] == DATA_LF)
+				&& new String(this.remoteHandshake.array(), UTF8_CHARSET)
+						.contains("Sec-WebSocket-Key1")) {// ************************
+			_readHandshake(new byte[] { h[h.length - 8], h[h.length - 7],
+					h[h.length - 6], h[h.length - 5], h[h.length - 4],
+					h[h.length - 3], h[h.length - 2], h[h.length - 1] });
 
 			// Consider Draft 75, and the Flash Security Policy
 			// Request edge-case.
-		} else if ((h.length >= 4 && h[h.length - 4] == DATA_CR && h[h.length - 3] == DATA_LF
-				&& h[h.length - 2] == DATA_CR && h[h.length - 1] == DATA_LF)
-				&& !(new String(this.remoteHandshake.array(), UTF8_CHARSET).contains("Sec"))
+		} else if ((h.length >= 4 && h[h.length - 4] == DATA_CR
+				&& h[h.length - 3] == DATA_LF && h[h.length - 2] == DATA_CR && h[h.length - 1] == DATA_LF)
+				&& !(new String(this.remoteHandshake.array(), UTF8_CHARSET)
+						.contains("Sec"))
 				|| (h.length == 23 && h[h.length - 1] == 0)) {
 			_readHandshake(null);
 		}
 	}
 
-	private void _readHandshake(byte[] handShakeBody) throws IOException, NoSuchAlgorithmException {
+	private void _readHandshake(byte[] handShakeBody) throws IOException,
+			NoSuchAlgorithmException {
 		// byte[] handshakeBytes = this.remoteHandshake.array();
 		// String handshake = new String(handshakeBytes, UTF8_CHARSET);
 		// TODO: Do some parsing of the returned handshake, and close connection
@@ -644,11 +661,16 @@ public class WebSocket implements Runnable {
 			if (handShakeBody == null) {
 				isConnectionReady = true;
 			}
-			byte[] challenge = new byte[] { (byte) (this.number1 >> 24), (byte) ((this.number1 << 8) >> 24),
-					(byte) ((this.number1 << 16) >> 24), (byte) ((this.number1 << 24) >> 24),
-					(byte) (this.number2 >> 24), (byte) ((this.number2 << 8) >> 24),
-					(byte) ((this.number2 << 16) >> 24), (byte) ((this.number2 << 24) >> 24), this.key3[0],
-					this.key3[1], this.key3[2], this.key3[3], this.key3[4], this.key3[5], this.key3[6], this.key3[7] };
+			byte[] challenge = new byte[] { (byte) (this.number1 >> 24),
+					(byte) ((this.number1 << 8) >> 24),
+					(byte) ((this.number1 << 16) >> 24),
+					(byte) ((this.number1 << 24) >> 24),
+					(byte) (this.number2 >> 24),
+					(byte) ((this.number2 << 8) >> 24),
+					(byte) ((this.number2 << 16) >> 24),
+					(byte) ((this.number2 << 24) >> 24), this.key3[0],
+					this.key3[1], this.key3[2], this.key3[3], this.key3[4],
+					this.key3[5], this.key3[6], this.key3[7] };
 			MessageDigest md5 = MessageDigest.getInstance("MD5");
 			byte[] expected = md5.digest(challenge);
 			for (int i = 0; i < handShakeBody.length; i++) {
@@ -671,7 +693,7 @@ public class WebSocket implements Runnable {
 		Random r = new Random();
 		long maxNumber = 4294967295L;
 		long spaces = r.nextInt(12) + 1;
-		int max = new Long(maxNumber / spaces).intValue();
+		int max = Long.valueOf(maxNumber / spaces).intValue();
 		max = Math.abs(max);
 		int number = r.nextInt(max) + 1;
 		if (this.number1 == 0) {

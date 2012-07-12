@@ -12,7 +12,7 @@ public class PusherPhoneGap extends DroidGap {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.loadUrl("file:///android_asset/www/index.html");
-        
-        this.appView.addJavascriptInterface(new WebSocketFactory(appView), "WebSocketFactory");
+       
+        this.appView.addJavascriptInterface(new WebSocketFactory(this), "WebSocketFactory");
     }  
 }

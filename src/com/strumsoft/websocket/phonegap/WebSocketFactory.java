@@ -29,7 +29,7 @@ package com.strumsoft.websocket.phonegap;
 import java.net.URI;
 import java.util.Random;
 
-import android.webkit.WebView;
+import org.apache.cordova.DroidGap;
 
 /**
  * The <tt>WebSocketFactory</tt> is like a helper class to instantiate new
@@ -40,17 +40,16 @@ import android.webkit.WebView;
  */
 public class WebSocketFactory {
 
-	/** The app view. */
-	WebView appView;
+	DroidGap droidGap;
 
 	/**
 	 * Instantiates a new web socket factory.
 	 * 
-	 * @param appView
+	 * @param droidGap
 	 *            the app view
 	 */
-	public WebSocketFactory(WebView appView) {
-		this.appView = appView;
+	public WebSocketFactory(DroidGap droidGap) {
+		this.droidGap = droidGap;
 	}
 
 	public WebSocket getInstance(String url) {
@@ -62,7 +61,7 @@ public class WebSocketFactory {
 		WebSocket socket = null;
 		Thread th = null;
 		try {
-			socket = new WebSocket(appView, new URI(url), draft, getRandonUniqueId());
+			socket = new WebSocket(droidGap, new URI(url), draft, getRandonUniqueId());
 			th = socket.connect();
 			return socket;
 		} catch (Exception e) {

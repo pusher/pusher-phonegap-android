@@ -1,6 +1,6 @@
 ( function( $ ) {
 	
-	var CONFIG = {
+  var CONFIG = {
 			PUSHER: {
 		    APP_KEY: '49e26cb8e9dde3dfc009'
 			}
@@ -33,6 +33,12 @@
   	
   	function subscriptionSucceeded() {
   		$('#subscriptionStatus').html('succeeded');
+  	}
+  	
+  	channel.bind('my-event', handleMyEvent);
+  	
+  	function handleMyEvent( data ) {
+  		$('#myEventData').append('<pre>' + JSON.stringify(data, null, 2) + '</pre>');
   	}
   	
   }
