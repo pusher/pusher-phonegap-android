@@ -404,7 +404,9 @@ public class WebSocket implements Runnable {
 	 * @return
 	 */
 	private String buildJavaScriptData(String event, String msg) {
-
+		if (msg == null) {
+			msg = "";
+		}
 		// System.out.println(">>> " + event + " >>> " + msg);
 		String _d = "WebSocket." + event + "(" + "{"
 				+ "\"_target\":\"" + id + "\"," + "\"data\":'"
