@@ -61,4 +61,4 @@ Then that's this issue! Use a different version of Android with the emulator.
 
 The WebSocket.java class does have some Pusher-specific modifications but they were not to the protocol implementation, which was last updated 11 months ago.
 
-Ideally the WebSocket implementation would be updated to use <https://github.com/rbaier/weberknecht> which is the most maintained Java WebSocket client library that I know of.
+Ideally the WebSocket implementation would support the RFC and would use a much better maintained library.
