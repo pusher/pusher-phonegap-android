@@ -26,6 +26,9 @@
  */
 package com.strumsoft.websocket.phonegap;
 
+import android.util.Log;
+import org.apache.cordova.CordovaWebView;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.InetSocketAddress;
@@ -42,10 +45,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
-import org.apache.cordova.DroidGap;
-
-import android.util.Log;
 
 /**
  * The <tt>WebSocket</tt> is an implementation of WebSocket Client API, and
@@ -131,9 +130,10 @@ public class WebSocket implements Runnable {
 
 	// //////////////// INSTANCE Variables
 	/**
-	 * The Phonegap DroidGap
+	 * The Phonegap WebView
 	 */
-	private final DroidGap droidGap;
+	private final CordovaWebView webView;
+
 	/**
 	 * The unique id for this instance (helps to bind this to javascript events)
 	 */
@@ -215,8 +215,8 @@ public class WebSocket implements Runnable {
 	 * Note: this is protected because it's supposed to be instantiated from
 	 * {@link WebSocketFactory} only.
 	 * 
-	 * @param droidGap
-	 *            {@link org.apache.cordova.DroidGap}
+	 * @param webView
+	 *            {@link org.apache.cordova.CordovaWebView}
 	 * @param uri
 	 *            websocket server {@link URI}
 	 * @param draft
@@ -224,8 +224,9 @@ public class WebSocket implements Runnable {
 	 * @param id
 	 *            unique id for this instance
 	 */
-	protected WebSocket(DroidGap droidGap, URI uri, Draft draft, String id) {
-		this.droidGap = droidGap;
+	protected WebSocket(CordovaWebView webView, URI uri, Draft draft, String id) {
+
+		this.webView = webView;
 		this.uri = uri;
 		this.draft = draft;
 
@@ -343,43 +344,44 @@ public class WebSocket implements Runnable {
 	 *            Message from websocket server
 	 */
 	public void onMessage(final String msg) {
-		droidGap.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_MESSAGE,
-						msg));
-			}
-		});
+
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                webView.sendJavascript(buildJavaScriptData(EVENT_ON_MESSAGE,
+                        msg));
+            }
+        });
 	}
 
 	public void onOpen() {
-		droidGap.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_OPEN,
-						BLANK_MESSAGE));
-			}
-		});
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                webView.sendJavascript(buildJavaScriptData(EVENT_ON_OPEN,
+                        BLANK_MESSAGE));
+            }
+        });
 	}
 
 	public void onClose() {
-		droidGap.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_CLOSE,
-						BLANK_MESSAGE));
-			}
-		});
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                webView.sendJavascript(buildJavaScriptData(EVENT_ON_CLOSE,
+                        BLANK_MESSAGE));
+            }
+        });
 	}
 
 	public void onError(final Throwable t) {
-		droidGap.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				droidGap.sendJavascript(buildJavaScriptData(EVENT_ON_ERROR,
-						t.getMessage()));
-			}
-		});
+        webView.post(new Runnable() {
+            @Override
+            public void run() {
+                webView.sendJavascript(buildJavaScriptData(EVENT_ON_ERROR,
+                        t.getMessage()));
+            }
+        });
 	}
 
 	public String getId() {
