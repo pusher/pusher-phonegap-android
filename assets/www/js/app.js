@@ -20,7 +20,7 @@
   	$('#deviceProperties').html(deviceInfo)
   	
   	// Connect
-  	var pusher = new Pusher(CONFIG.PUSHER.APP_KEY);
+  	var pusher = new Pusher(CONFIG.PUSHER.APP_KEY );
   	pusher.connection.bind('state_change', connectionStateChange);
   	
   	function connectionStateChange(state) {
