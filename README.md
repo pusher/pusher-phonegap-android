@@ -2,6 +2,11 @@
 
 This is a sample project that demonstrates how to use the [Pusher JavaScript library](https://github.com/pusher/pusher-js) within PhoneGap on Android.
 
+## Changelog
+
+* **2.0-beta.1** - Removed Java WebSocket wrapper as pusher-js 2.* now provides a HTTP-based fallback. Awaiting 2.0.5 full release before moving from beta.
+* **1.0** - Used Java WebSocket wrapper with pusher-js 1.* to provide WebSocket support
+
 ## Prerequisites
 
 See [step 2 of the Getting Started with Android guide](http://docs.phonegap.com/en/1.9.0/guide_getting-started_android_index.md.html#Getting%20Started%20with%20Android) from the PhoneGap site.
@@ -31,18 +36,11 @@ See [step 2 of the Getting Started with Android guide](http://docs.phonegap.com/
 
 **Note** *I've found emulators, like Eclipse, to be a bit temperamental. But, persevere and keep trying to run the application and eventually things will work as expected.*
 
-## Native WebSocket support
-
-Previous solutions of using Pusher within PhoneGap have resorted to falling back to a Flash connection. This sample removes that need by using a slightly modified version of [animesh kumar's](http://anismiles.wordpress.com/) library [websocket-android-phonegap](https://github.com/anismiles/websocket-android-phonegap). You can read a blog post about the library [here](http://anismiles.wordpress.com/2011/02/03/websocket-support-in-android%E2%80%99s-phonegap-apps/).
-
-This means that a bridge is created between JavaScript and the Java runtime and a WebSocket proxy is added. It does however mean that a WebSocket connection to Pusher will be created from the PhoneGap wrapper.
-
 ## Project notes
 
 ### Links
 
 * [Cordova/PhoneGap API docs](http://docs.phonegap.com/en/1.9.0/index.html)
-* [websocket-android-phonegap](https://github.com/anismiles/websocket-android-phonegap)
 * [Android SDK](http://developer.android.com/sdk/index.html)
 * [Eclipse](http://www.eclipse.org/)
 
@@ -55,10 +53,3 @@ If you see an error and the information contains:
 >  JNI WARNING: jarray 0x40629bb0 points to non-array object (Ljava/lang/String;)
 
 Then that's this issue! Use a different version of Android with the emulator.
-
-
-### WebSocket.java implements Draft 75 and 76 only
-
-The WebSocket.java class does have some Pusher-specific modifications but they were not to the protocol implementation, which was last updated 11 months ago.
-
-Ideally the WebSocket implementation would support the RFC and would use a much better maintained library.
